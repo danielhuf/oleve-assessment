@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Dict
 from fastapi import APIRouter, HTTPException, status, BackgroundTasks
 from bson import ObjectId
 from datetime import datetime
@@ -11,6 +11,7 @@ from database import (
     PINS_COLLECTION,
 )
 from services.pinterest_service import run_pinterest_workflow
+from services.ai_validation_service import run_ai_validation
 
 router = APIRouter(prefix="/api/prompts", tags=["prompts"])
 
@@ -182,4 +183,100 @@ async def start_pinterest_workflow(prompt_id: str, background_tasks: BackgroundT
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to start workflow: {str(e)}",
+        )
+
+
+@router.post("/{prompt_id}/validate", status_code=status.HTTP_202_ACCEPTED)
+async def start_ai_validation(prompt_id: str, background_tasks: BackgroundTasks):
+    """Start AI validation for all pins of a prompt."""
+    try:
+        if not ObjectId.is_valid(prompt_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid prompt ID format",
+            )
+
+        # Check if prompt exists
+        collection = get_collection(PROMPTS_COLLECTION)
+        prompt = await collection.find_one({"_id": ObjectId(prompt_id)})
+
+        if not prompt:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found"
+            )
+
+        # Check if there are pins to validate
+        pins_collection = get_collection(PINS_COLLECTION)
+        pending_pins = await pins_collection.count_documents(
+            {"prompt_id": prompt_id, "status": "pending"}
+        )
+
+        if pending_pins == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No pending pins found for validation",
+            )
+
+        # Start AI validation in background
+        background_tasks.add_task(run_ai_validation, prompt_id)
+
+        return {
+            "message": "AI validation started",
+            "prompt_id": prompt_id,
+            "pending_pins": pending_pins,
+            "status": "validating",
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start AI validation: {str(e)}",
+        )
+
+
+@router.get("/{prompt_id}/pins", response_model=List[Dict])
+async def get_prompt_pins(prompt_id: str, status: Optional[str] = None):
+    """Get all pins for a prompt with optional status filter."""
+    try:
+        if not ObjectId.is_valid(prompt_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid prompt ID format",
+            )
+
+        # Build query
+        query = {"prompt_id": prompt_id}
+        if status and status in ["approved", "disqualified", "pending"]:
+            query["status"] = status
+
+        # Get pins
+        collection = get_collection(PINS_COLLECTION)
+        cursor = collection.find(query).sort("match_score", -1)
+
+        pins = []
+        async for pin in cursor:
+            pins.append(
+                {
+                    "id": str(pin["_id"]),
+                    "image_url": pin["image_url"],
+                    "pin_url": pin["pin_url"],
+                    "title": pin["title"],
+                    "description": pin["description"],
+                    "match_score": pin["match_score"],
+                    "status": pin["status"],
+                    "ai_explanation": pin["ai_explanation"],
+                    "metadata": pin["metadata"],
+                }
+            )
+
+        return pins
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve pins: {str(e)}",
         )
