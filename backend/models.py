@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class PromptStatus(str, Enum):
     PENDING = "pending"
+    PROCESSING = "processing"
     COMPLETED = "completed"
     ERROR = "error"
 

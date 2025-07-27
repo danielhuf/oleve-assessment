@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, BackgroundTasks
 from bson import ObjectId
 from datetime import datetime
 
@@ -10,6 +10,7 @@ from database import (
     SESSIONS_COLLECTION,
     PINS_COLLECTION,
 )
+from services.pinterest_service import run_pinterest_workflow
 
 router = APIRouter(prefix="/api/prompts", tags=["prompts"])
 
@@ -139,4 +140,46 @@ async def delete_prompt(prompt_id: str):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete prompt: {str(e)}",
+        )
+
+
+@router.post("/{prompt_id}/start-workflow", status_code=status.HTTP_202_ACCEPTED)
+async def start_pinterest_workflow(prompt_id: str, background_tasks: BackgroundTasks):
+    """Start the Pinterest workflow (warm-up + scraping) for a prompt."""
+    try:
+        if not ObjectId.is_valid(prompt_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid prompt ID format",
+            )
+
+        # Check if prompt exists
+        collection = get_collection(PROMPTS_COLLECTION)
+        prompt = await collection.find_one({"_id": ObjectId(prompt_id)})
+
+        if not prompt:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found"
+            )
+
+        # Update prompt status to processing
+        await collection.update_one(
+            {"_id": ObjectId(prompt_id)}, {"$set": {"status": "processing"}}
+        )
+
+        # Start Pinterest workflow in background
+        background_tasks.add_task(run_pinterest_workflow, prompt_id, prompt["text"])
+
+        return {
+            "message": "Pinterest workflow started",
+            "prompt_id": prompt_id,
+            "status": "processing",
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start workflow: {str(e)}",
         )
