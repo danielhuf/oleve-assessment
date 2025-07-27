@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import connect_to_mongo, close_mongo_connection
+from routes import prompts
 
 app = FastAPI(
     title="Pinterest AI Content Discovery API",
@@ -28,6 +29,10 @@ async def startup_db_client():
 async def shutdown_db_client():
     """Close MongoDB connection on shutdown."""
     await close_mongo_connection()
+
+
+# Include routers
+app.include_router(prompts.router)
 
 
 @app.get("/")
