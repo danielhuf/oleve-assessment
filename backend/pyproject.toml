@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pinterest-ai-backend"
+version = "0.1.0"
+description = "FastAPI backend for Pinterest AI content discovery and validation system"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+    "motor>=3.3.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.25.0",
+    "playwright>=1.40.0",
+    "pillow>=10.1.0",
+    "openai>=1.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto" 

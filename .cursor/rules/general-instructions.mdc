@@ -1,0 +1,192 @@
+---
+alwaysApply: true
+---
+
+**Full-Stack AI Software Engineer (Platform) – Take-Home Assessment**
+
+**Deadline: 4 days**
+
+Build a full-stack, AI-powered system that:
+
+1. Accepts a **visual prompt** from the user (e.g., “boho minimalist bedroom”)
+2. Warms up a Pinterest account to align recommendations with that prompt
+3. Scrapes top image results based on the prompt
+4. Validates that the images are truly aligned with the user’s intent using an AI model
+5. Displays the results in a filterable UI that shows match quality and approval status
+
+This project evaluates your ability to:
+
+- Implement end-to-end agentic workflows
+- Handle dynamic web scraping
+- Integrate AI thoughtfully and cost-effectively
+- Structure clean full-stack systems with strong UX and data management
+
+## 🧱 Required Tech Stack
+
+You **must use** the following technologies:
+Frontend: React + TypeScript
+Backend: Python + FastAPI
+Database: MongoDB
+Hosting: AWS Free Tier
+AI: Any appropriate AI model (see Validation section)
+
+## ⏱ Time Allocation
+
+**Estimated time:** 8–10 hours
+
+## 🧩 Core Requirements
+
+### 1. Prompt Submission & Agent Trigger
+
+- Simple UI input for a visual prompt like:
+    
+    `"cozy industrial home office"`
+    
+- On submit, trigger a multi-phase agent:
+    - Warm-up
+    - Scraping
+    - Validation
+
+### 2. Pinterest Account Warm-Up (Open-Ended)
+
+To ensure Pinterest recommendations are aligned with the prompt:
+
+- You must implement a warm-up phase that **replicates realistic Pinterest engagement**
+- Think carefully about what types of interactions influence Pinterest’s algorithm
+- **We encourage you to manually play with Pinterest first** (as a user) to understand what behaviors affect recommendations
+- Then, replicate those behaviors programmatically in your warm-up agent
+
+### 3. Scraping Pinterest Image Results
+
+After warm-up, scrape 20–30 of the most relevant images:
+
+- Extract for each:
+    - `title`
+    - `image_url`
+    - `pin_url`
+    - `description` or `alt_text` if available
+
+
+### 4. Image Validation (AI Required)
+
+You must validate each scraped image to determine how well it matches the original user prompt.
+
+- Use **an AI model of your choice** to:
+    - Evaluate the visual or semantic alignment between the prompt and each image
+    - Return a `match_score` between 0.0 and 1.0
+    - Classify the result as:
+        - `"approved"` if score ≥ 0.5
+        - `"disqualified"` if score < 0.5
+- Also store a brief explanation or rationale (e.g., AI output text)
+
+> Choose the most appropriate and cost-effective model for this task. You're free to use image-to-text models, multi-modal models, or creative alternatives — just justify your choice.
+
+## 📦 MongoDB Requirements
+Use MongoDB to persist all prompt activity, scraped pins, and validation results.
+Required Collections
+prompts
+{
+  _id: ObjectId,
+  text: string,
+  created_at: ISODate,
+  status: "pending" | "completed" | "error"
+}
+
+​
+sessions
+{
+  _id: ObjectId,
+  prompt_id: ObjectId,
+  stage: "warmup" | "scraping" | "validation",
+  status: "pending" | "completed" | "failed",
+  timestamp: ISODate,
+  log: string[]
+}
+
+​
+pins
+{
+  _id: ObjectId,
+  prompt_id: ObjectId,
+  image_url: string,
+  pin_url: string,
+  title: string,
+  description: string,
+  match_score: number,
+  status: "approved" | "disqualified",
+  ai_explanation: string,
+  metadata: {
+    collected_at: ISODate
+  }
+}
+
+## 💻 Frontend UI/UX Requirements
+
+Build a clean, responsive React + TypeScript interface with:
+
+---
+
+### 🖊 Prompt Submission View
+
+- Input field for the visual prompt
+- Button to trigger the full pipeline (`Start Agent`)
+
+---
+
+### ⏳ Agent Progress View
+
+- Show real-time feedback for each stage:
+    - Warm-up: e.g., `Searching`, `Saving pins`, etc.
+    - Scraping: e.g., `Scraped 10 of 25 pins...`
+    - Validation: e.g., `Validating pin 6 of 25...`
+- Use polling or websockets for progress
+
+---
+
+### 🖼 Image Review View
+
+A gallery view showing the final results:
+
+- Grid layout of validated image cards
+    - Image thumbnail
+    - Title / description
+    - `match_score` badge or bar
+    - ✅ Approved / ❌ Disqualified label
+    - AI explanation (optional display)
+- Filter:
+    - `Show: All | Approved | Disqualified`
+
+## Deliverables
+✅ Deployed App	Hosted on AWS, publicly accessible
+✅ GitHub Repo	Cleanly organized with README and setup instructions
+✅ Mongo Integration	Full schema + filtering logic in place
+✅ Demo Video	10–15 min Loom showing prompt → scrape → validation
+✅ Documentation	Justify your AI model, warm-up strategy, and system architecture
+
+## 📂 Suggested Repo Layout
+project-root/
+├── frontend/         # React + TypeScript app
+│   └── components/
+├── backend/          # FastAPI app
+│   └── routes/
+│   └── services/
+├── deployment/       # AWS config/scripts
+├── docs/             # Architecture, schema, sample data
+├── README.md
+└── docker-compose.yml (optional)
+
+## 🧠 Sample Workflow
+Prompt: "cottagecore kitchen"
+
+→ Warm-up agent engages with Pinterest content
+→ Scraper extracts 27 pins
+→ AI validation approves 18, disqualifies 9
+→ UI shows gallery of pins with scores + status
+→ MongoDB stores prompt, pins, and match data
+
+## 🚀 Getting Started
+
+You may use:
+
+- Playwright or Puppeteer for Pinterest automation
+- MongoDB Atlas (free tier) or a local instance
