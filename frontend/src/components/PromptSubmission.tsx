@@ -24,7 +24,7 @@ const PromptSubmission: React.FC<PromptSubmissionProps> = ({ onSubmit, loading }
             type="text"
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
-            placeholder="Enter a visual prompt (e.g., 'cozy industrial home office')"
+            placeholder="cozy industrial home office"
             disabled={loading}
             className="prompt-input"
           />
@@ -37,16 +37,6 @@ const PromptSubmission: React.FC<PromptSubmissionProps> = ({ onSubmit, loading }
           </button>
         </div>
       </form>
-      
-      <div className="prompt-examples">
-        <p>Try prompts like:</p>
-        <ul>
-          <li>"modern minimalist bedroom"</li>
-          <li>"boho chic living room"</li>
-          <li>"industrial kitchen design"</li>
-          <li>"scandinavian home office"</li>
-        </ul>
-      </div>
     </div>
   );
 };

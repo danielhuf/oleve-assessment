@@ -113,8 +113,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>⚡ Pinterest AI - Content Discovery</h1>
-        <p>AI-powered Pinterest content discovery and validation system</p>
+        <h1>✨ Pinterest AI ✨</h1>
       </header>
 
       <main className="App-main">
@@ -125,85 +124,100 @@ function App() {
           </div>
         )}
 
-        <div className="app-layout">
-          {/* Left sidebar - Prompt list */}
-          <div className="sidebar">
-            <h2>Your Prompts</h2>
+        <div className="vertical-app-layout">
+          {/* Top: Prompt input section */}
+          <div className="prompt-input-section">
+            <h2>Create New Prompt</h2>
             <PromptSubmission 
               onSubmit={handleCreatePrompt} 
               loading={loading} 
             />
             
-            <div className="prompt-list">
-              {prompts.map(prompt => (
-                <div 
-                  key={prompt.id} 
-                  className={`prompt-item ${currentPrompt?.id === prompt.id ? 'active' : ''}`}
-                  onClick={() => handleSelectPrompt(prompt)}
-                >
-                  <div className="prompt-text">{prompt.text}</div>
-                  <div className="prompt-status">{prompt.status}</div>
-                  <button 
-                    className="delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeletePrompt(prompt.id);
-                    }}
+            {/* Recent prompts list */}
+            <div className="recent-prompts">
+              <h3>Recent Prompts</h3>
+              <div className="prompts-grid">
+                {prompts.slice(0, 6).map(prompt => (
+                  <div 
+                    key={prompt.id} 
+                    className={`prompt-card ${currentPrompt?.id === prompt.id ? 'active' : ''}`}
+                    onClick={() => handleSelectPrompt(prompt)}
                   >
-                    ✕
-                  </button>
-                </div>
-              ))}
+                    <div className="prompt-text">{prompt.text}</div>
+                    <div className="prompt-status">{prompt.status}</div>
+                    <button 
+                      className="delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePrompt(prompt.id);
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Main content area */}
-          <div className="main-content">
-            {currentPrompt ? (
-              <>
-                <div className="prompt-header">
-                  <h2>"{currentPrompt.text}"</h2>
-                  <div className="prompt-actions">
-                    {currentPrompt.status === 'pending' && (
-                      <button 
-                        onClick={() => handleStartWorkflow(currentPrompt.id)}
-                        disabled={loading}
-                        className="btn-primary"
-                      >
-                        {loading ? 'Starting...' : 'Start Pinterest Workflow'}
-                      </button>
-                    )}
-                    
-                    {currentPrompt.status === 'processing' && (
-                      <AgentProgress key={currentPrompt.id} prompt={currentPrompt} />
-                    )}
-                    
-                    {currentPrompt.status === 'completed' && pins.length === 0 && (
-                      <button 
-                        onClick={() => handleLoadPins(currentPrompt.id)}
-                        className="btn-secondary"
-                      >
-                        Load Results
-                      </button>
-                    )}
-                  </div>
-                </div>
+          {/* Middle: Progress section (only show when processing) */}
+          {currentPrompt && currentPrompt.status === 'processing' && (
+            <div className="progress-section">
+              <h2>Processing: "{currentPrompt.text}"</h2>
+              <AgentProgress key={currentPrompt.id} prompt={currentPrompt} />
+            </div>
+          )}
 
-                {pins.length > 0 && (
-                  <ImageReview 
-                    pins={pins} 
-                    prompt={currentPrompt}
-                    onStartValidation={() => handleStartValidation(currentPrompt.id)}
-                  />
-                )}
-              </>
-            ) : (
-              <div className="empty-state">
-                <h3>Select a prompt to get started</h3>
-                <p>Create a new prompt or select an existing one to view results</p>
+          {/* Bottom: Results section */}
+          {currentPrompt && (
+            <div className="results-section">
+              <div className="results-header">
+                <h2>Results: "{currentPrompt.text}"</h2>
+                <div className="prompt-actions">
+                  {currentPrompt.status === 'pending' && (
+                    <button 
+                      onClick={() => handleStartWorkflow(currentPrompt.id)}
+                      disabled={loading}
+                      className="btn-primary"
+                    >
+                      {loading ? 'Starting...' : 'Start Pinterest Workflow'}
+                    </button>
+                  )}
+                  
+                  {currentPrompt.status === 'completed' && pins.length === 0 && (
+                    <button 
+                      onClick={() => handleLoadPins(currentPrompt.id)}
+                      className="btn-secondary"
+                    >
+                      Load Results
+                    </button>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+              
+              {pins.length > 0 && (
+                <ImageReview 
+                  pins={pins} 
+                  prompt={currentPrompt}
+                  onStartValidation={() => handleStartValidation(currentPrompt.id)}
+                />
+              )}
+              
+              {currentPrompt.status === 'completed' && pins.length === 0 && (
+                <div className="empty-results">
+                  <p>No results found for this prompt. Click "Load Results" to fetch the data.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Empty state when no prompt is selected */}
+          {!currentPrompt && (
+            <div className="empty-state">
+              <h3>Create a prompt to get started</h3>
+              <p>Enter a visual prompt above to begin the Pinterest content discovery process</p>
+            </div>
+          )}
         </div>
       </main>
     </div>
