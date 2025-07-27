@@ -255,7 +255,7 @@ class PinterestService:
 
 
 async def run_pinterest_workflow(prompt_id: str, prompt_text: str) -> bool:
-    """Run the complete Pinterest workflow (warm-up + scraping)."""
+    """Run the complete Pinterest workflow (warm-up + scraping + auto-trigger AI validation)."""
     async with PinterestService() as pinterest:
         try:
             # Warm-up phase
@@ -286,6 +286,14 @@ async def run_pinterest_workflow(prompt_id: str, prompt_text: str) -> bool:
                 await update_session_status(
                     prompt_id, SessionStage.SCRAPING, SessionStatus.COMPLETED
                 )
+
+                # Auto-trigger AI validation
+                logger.info(
+                    f"Pinterest workflow completed. Auto-triggering AI validation for prompt {prompt_id}"
+                )
+                from .ai_validation_service import run_ai_validation
+
+                await run_ai_validation(prompt_id)
                 return True
             else:
                 await update_session_status(
