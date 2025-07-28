@@ -110,12 +110,16 @@ const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidati
                   <div className="pin-status">
                     {pin.status === 'approved' ? '✅ Approved' : '❌ Disqualified'}
                   </div>
-                  <div 
-                    className="match-score"
-                    style={{ color: getMatchScoreColor(pin.match_score) }}
-                  >
-                    {Math.round(pin.match_score * 100)}% Match
-                    <span className="score-label">({getMatchScoreLabel(pin.match_score)})</span>
+                  <div className="match-score-badge">
+                    <span 
+                      className="match-score-text"
+                      style={{ 
+                        backgroundColor: getMatchScoreColor(pin.match_score),
+                        color: '#ffffff'
+                      }}
+                    >
+                      {Math.round(pin.match_score * 100)}% Match
+                    </span>
                   </div>
                 </div>
 
