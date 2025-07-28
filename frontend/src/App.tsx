@@ -113,7 +113,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>✨ Pinterest AI ✨</h1>
+        <h1>Pinterest.AI</h1>
       </header>
 
       <main className="App-main">
@@ -137,7 +137,7 @@ function App() {
             <div className="recent-prompts">
               <h3>Recent Prompts</h3>
               <div className="prompts-grid">
-                {prompts.slice(0, 6).map(prompt => (
+                {prompts.slice(0, 4).map(prompt => (
                   <div 
                     key={prompt.id} 
                     className={`prompt-card ${currentPrompt?.id === prompt.id ? 'active' : ''}`}
@@ -172,7 +172,7 @@ function App() {
           {currentPrompt && (
             <div className="results-section">
               <div className="results-header">
-                <h2>Results: "{currentPrompt.text}"</h2>
+                <h2>Results for: "{currentPrompt.text}"</h2>
                 <div className="prompt-actions">
                   {currentPrompt.status === 'pending' && (
                     <button 
