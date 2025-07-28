@@ -173,6 +173,10 @@ class PinterestService:
                     '[data-test-id="pin"]'
                 )
 
+                await self.log_session(
+                    f"Found {len(pin_elements)} pins on current page", prompt_id
+                )
+
                 for pin_element in pin_elements:
                     if pins_scraped >= max_pins:
                         break

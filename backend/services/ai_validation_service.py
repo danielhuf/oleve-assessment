@@ -291,6 +291,26 @@ class AIValidationService:
                 {"_id": ObjectId(prompt_id)}, {"$set": {"status": "completed"}}
             )
 
+            # Mark validation session as completed
+            try:
+                session_collection = get_collection(SESSIONS_COLLECTION)
+                latest_session = await session_collection.find_one(
+                    {"prompt_id": prompt_id, "stage": "validation"},
+                    sort=[("timestamp", -1)],
+                )
+                if latest_session:
+                    await session_collection.update_one(
+                        {"_id": latest_session["_id"]},
+                        {
+                            "$set": {"status": "completed"},
+                            "$push": {
+                                "log": f"AI validation completed! Approved: {approved_count}, Disqualified: {disqualified_count}"
+                            },
+                        },
+                    )
+            except Exception as e:
+                logger.error(f"Failed to update validation session status: {str(e)}")
+
             result = {
                 "total_pins": len(pending_pins),
                 "validated_pins": validated_count,

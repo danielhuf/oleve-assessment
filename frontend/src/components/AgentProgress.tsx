@@ -64,7 +64,9 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
             setCurrentStage(activeSession.stage);
             // Get the latest log message from active session
             if (activeSession.log && activeSession.log.length > 0) {
-              setCurrentMessage(activeSession.log[activeSession.log.length - 1]);
+              const latestLog = activeSession.log[activeSession.log.length - 1];
+              console.log(`Active session log: ${latestLog}`); // Debug log
+              setCurrentMessage(latestLog);
             } else {
               setCurrentMessage(getDefaultMessage(activeSession.stage));
             }
@@ -72,7 +74,9 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
             // All stages completed, show the last stage
             setCurrentStage(latestSession.stage);
             if (latestSession.log && latestSession.log.length > 0) {
-              setCurrentMessage(latestSession.log[latestSession.log.length - 1]);
+              const latestLog = latestSession.log[latestSession.log.length - 1];
+              console.log(`Latest session log: ${latestLog}`); // Debug log
+              setCurrentMessage(latestLog);
             } else {
               setCurrentMessage(getDefaultMessage(latestSession.stage));
             }
@@ -184,6 +188,33 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
           <span className="log-text">{currentMessage}</span>
           {isPolling && <span className="live-indicator">●</span>}
         </div>
+        
+        {/* Show recent log history for debugging */}
+        {sessions.length > 0 && (
+          <div className="log-history">
+            <details>
+              <summary>📋 Recent Logs (Click to expand)</summary>
+              <div className="log-entries">
+                {sessions.map((session, index) => (
+                  <div key={index} className="log-session">
+                    <div className="log-session-header">
+                      <strong>{session.stage}</strong> - {session.status}
+                    </div>
+                    {session.log && session.log.length > 0 && (
+                      <div className="log-session-entries">
+                        {session.log.slice(-3).map((logEntry, logIndex) => (
+                          <div key={logIndex} className="log-entry">
+                            {logEntry}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </details>
+          </div>
+        )}
       </div>
       
       <div className="progress-note">
