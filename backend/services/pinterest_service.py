@@ -170,7 +170,7 @@ class PinterestService:
             while pins_scraped < max_pins:
                 # Get all pin elements
                 pin_elements = await self.page.query_selector_all(
-                    '[data-test-id="pin"]'
+                    'div[data-test-id="pinWrapper"]'
                 )
 
                 await self.log_session(
@@ -232,11 +232,15 @@ class PinterestService:
             img_element = await pin_element.query_selector("img")
             image_url = await img_element.get_attribute("src") if img_element else ""
 
-            # Get title/description - try multiple selectors
-            title_element = await pin_element.query_selector(
-                '[data-test-id="pin-title"], h3, .pin-title, [aria-label*="title"]'
-            )
-            title = await title_element.text_content() if title_element else ""
+            # Get title from aria-label (like the reference script)
+            title_element = await pin_element.query_selector("a")
+            title = ""
+            if title_element:
+                title = await title_element.get_attribute("aria-label") or ""
+                if title:
+                    # Replace "pin page" with empty string
+                    title = title.replace("pin page", "").strip()
+                    logger.info(f"Found title from aria-label: '{title[:50]}...'")
 
             # Get description - try multiple selectors
             desc_element = await pin_element.query_selector(

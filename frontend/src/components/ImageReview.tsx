@@ -153,9 +153,9 @@ const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidati
                     </div>
                   </div>
 
-                  {pin.title && (
-                    <h4 className="pin-title">{pin.title}</h4>
-                  )}
+                                  {pin.title && pin.title.trim() && (
+                  <h4 className="pin-title">{pin.title}</h4>
+                )}
 
                   {pin.description && (
                     <p className="pin-description">{pin.description}</p>
