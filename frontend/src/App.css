@@ -854,11 +854,94 @@ body {
   border: none;
 }
 
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem auto 0;
+  padding: 1rem;
+  background: #1a1a1a;
+  border-radius: 0.75rem;
+  border: 1px solid #333;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: #888;
+  text-align: center;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 0.375rem;
+  color: #e5e5e5;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #444;
+  border-color: #666;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.page-btn {
+  width: 2rem;
+  height: 2rem;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  color: #e5e5e5;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:hover {
+  background: #444;
+  border-color: #666;
+}
+
+.page-btn.active {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
 /* Pins Grid */
 .pins-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 .pin-card {
@@ -1056,6 +1139,8 @@ body {
   
   .pins-grid {
     grid-template-columns: 1fr;
+    width: 100%;
+    margin-bottom: 2rem;
   }
   
   .progress-stages {
