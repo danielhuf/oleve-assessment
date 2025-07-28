@@ -35,6 +35,14 @@ class AIValidationService:
             2. Content and subject matter
             3. Color scheme and mood
             4. Overall relevance to the prompt
+            5. Quality and clarity of the image
+            6. Specificity of match (generic vs. specific to prompt)
+            
+            Be STRICT in your evaluation. Only approve images that are:
+            - Highly relevant to the specific prompt
+            - Show the exact style/aesthetic mentioned
+            - Have good visual quality
+            - Are not generic or loosely related
             
             Provide:
             1. A match score from 0.0 to 1.0 (where 1.0 is perfect match)
@@ -60,7 +68,7 @@ class AIValidationService:
 
             # Call OpenAI API for image analysis
             response = await self.client.chat.completions.create(
-                model="gpt-4o",  # Updated to current model
+                model="gpt-4o",
                 messages=[
                     {
                         "role": "user",

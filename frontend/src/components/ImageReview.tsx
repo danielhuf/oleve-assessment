@@ -77,7 +77,7 @@ const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidati
                 checked={showExplanations}
                 onChange={(e) => setShowExplanations(e.target.checked)}
               />
-              Show AI Explanations
+              Show AI reasonings
             </label>
           </div>
         </div>
