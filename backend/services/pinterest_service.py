@@ -6,7 +6,7 @@ from datetime import datetime
 from playwright.async_api import async_playwright, Browser, Page
 from dotenv import load_dotenv
 
-from models import PinDB, SessionDB, SessionStage, SessionStatus
+from models import SessionStage, SessionStatus
 from database import get_collection, SESSIONS_COLLECTION, PINS_COLLECTION
 
 load_dotenv()

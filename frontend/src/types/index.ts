@@ -28,8 +28,4 @@ export interface Session {
   log: string[];
 }
 
-export interface PromptWithResults extends Prompt {
-  pins?: Pin[];
-}
-
 export type PinStatus = 'all' | 'approved' | 'disqualified'; 

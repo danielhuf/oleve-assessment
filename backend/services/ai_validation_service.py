@@ -7,7 +7,7 @@ import httpx
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
-from models import PinDB, PinStatus
+from models import PinStatus
 from database import (
     get_collection,
     PINS_COLLECTION,

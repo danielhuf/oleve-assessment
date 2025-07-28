@@ -59,23 +59,7 @@ function App() {
     }
   };
 
-  const handleStartWorkflow = async (promptId: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await promptService.startWorkflow(promptId);
-      // Update prompt status
-      setPrompts(prev => prev.map(p => 
-        p.id === promptId ? { ...p, status: 'processing' as const } : p
-      ));
-      setCurrentPrompt(prev => prev?.id === promptId ? { ...prev, status: 'processing' } : prev);
-    } catch (err) {
-      setError('Failed to start workflow');
-      console.error('Error starting workflow:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleStartValidation = async (promptId: string) => {
     setLoading(true);

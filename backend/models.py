@@ -64,25 +64,11 @@ class PinResponse(BaseModel):
     metadata: dict
 
 
-class PromptWithResults(BaseModel):
-    prompt: PromptResponse
-    sessions: List[SessionResponse]
-    pins: List[PinResponse]
-
-
 # Database Models (for MongoDB)
 class PromptDB(BaseModel):
     text: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     status: PromptStatus = PromptStatus.PENDING
-
-
-class SessionDB(BaseModel):
-    prompt_id: str
-    stage: SessionStage
-    status: SessionStatus = SessionStatus.PENDING
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    log: List[str] = Field(default_factory=list)
 
 
 class PinDB(BaseModel):

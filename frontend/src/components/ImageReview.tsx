@@ -46,12 +46,6 @@ const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidati
     return '#ef4444'; // red
   };
 
-  const getMatchScoreLabel = (score: number) => {
-    if (score >= 0.8) return 'Excellent';
-    if (score >= 0.6) return 'Good';
-    return 'Poor';
-  };
-
   return (
     <div className="image-review">
       <div className="review-header">

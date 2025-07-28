@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status, BackgroundTasks
 from bson import ObjectId
 from datetime import datetime
 
-from models import PromptCreate, PromptResponse, PromptWithResults
+from models import PromptCreate, PromptResponse
 from database import (
     get_collection,
     PROMPTS_COLLECTION,
