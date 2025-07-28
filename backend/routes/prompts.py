@@ -236,6 +236,44 @@ async def start_ai_validation(prompt_id: str, background_tasks: BackgroundTasks)
         )
 
 
+@router.get("/{prompt_id}/sessions", response_model=List[Dict])
+async def get_prompt_sessions(prompt_id: str):
+    """Get all sessions for a prompt to track progress."""
+    try:
+        if not ObjectId.is_valid(prompt_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid prompt ID format",
+            )
+
+        # Get sessions for this prompt
+        collection = get_collection(SESSIONS_COLLECTION)
+        cursor = collection.find({"prompt_id": prompt_id}).sort("timestamp", 1)
+
+        sessions = []
+        async for session in cursor:
+            sessions.append(
+                {
+                    "id": str(session["_id"]),
+                    "prompt_id": session["prompt_id"],
+                    "stage": session["stage"],
+                    "status": session["status"],
+                    "timestamp": session["timestamp"],
+                    "log": session.get("log", []),
+                }
+            )
+
+        return sessions
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve sessions: {str(e)}",
+        )
+
+
 @router.get("/{prompt_id}/pins", response_model=List[Dict])
 async def get_prompt_pins(prompt_id: str, status: Optional[str] = None):
     """Get all pins for a prompt with optional status filter."""

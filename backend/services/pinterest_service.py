@@ -86,14 +86,14 @@ class PinterestService:
     async def warm_up_account(self, prompt_text: str, prompt_id: str) -> bool:
         """Warm up Pinterest account with relevant interactions."""
         try:
-            await self.log_session("Starting Pinterest warm-up phase...")
+            await self.log_session("Starting Pinterest warm-up phase...", prompt_id)
 
             # Login first
             if not await self.login_to_pinterest():
                 return False
 
             # Search for the prompt
-            await self.log_session(f"Searching for: {prompt_text}")
+            await self.log_session(f"Searching for: {prompt_text}", prompt_id)
             await self.page.goto(
                 f"https://www.pinterest.com/search/pins/?q={prompt_text.replace(' ', '%20')}"
             )
@@ -101,8 +101,9 @@ class PinterestService:
             await self.page.wait_for_timeout(3000)
 
             # Scroll and interact with pins
-            await self.log_session("Scrolling and interacting with pins...")
+            await self.log_session("Scrolling and interacting with pins...", prompt_id)
             for i in range(3):  # Scroll 3 times
+                await self.log_session(f"Scrolling page {i+1}/3...", prompt_id)
                 await self.page.evaluate("window.scrollBy(0, 1000)")
                 await self.page.wait_for_timeout(2000)
 
@@ -121,7 +122,7 @@ class PinterestService:
                             continue
 
             # Save some pins to boards
-            await self.log_session("Saving pins to boards...")
+            await self.log_session("Saving pins to boards...", prompt_id)
             save_buttons = await self.page.query_selector_all(
                 '[data-test-id="pin-save-button"]'
             )
@@ -140,11 +141,11 @@ class PinterestService:
                 except:
                     continue
 
-            await self.log_session("Warm-up phase completed successfully")
+            await self.log_session("Warm-up phase completed successfully", prompt_id)
             return True
 
         except Exception as e:
-            await self.log_session(f"Warm-up error: {str(e)}")
+            await self.log_session(f"Warm-up error: {str(e)}", prompt_id)
             return False
 
     async def scrape_pins(
@@ -152,7 +153,9 @@ class PinterestService:
     ) -> List[Dict]:
         """Scrape pins based on the prompt."""
         try:
-            await self.log_session(f"Starting to scrape pins for: {prompt_text}")
+            await self.log_session(
+                f"Starting to scrape pins for: {prompt_text}", prompt_id
+            )
 
             # Search for the prompt
             search_url = f"https://www.pinterest.com/search/pins/?q={prompt_text.replace(' ', '%20')}"
@@ -181,11 +184,13 @@ class PinterestService:
                             pins_data.append(pin_data)
                             pins_scraped += 1
                             await self.log_session(
-                                f"Scraped pin {pins_scraped}/{max_pins}"
+                                f"Scraped pin {pins_scraped}/{max_pins}", prompt_id
                             )
 
                     except Exception as e:
-                        await self.log_session(f"Error extracting pin data: {str(e)}")
+                        await self.log_session(
+                            f"Error extracting pin data: {str(e)}", prompt_id
+                        )
                         continue
 
                 # Scroll down to load more pins
@@ -200,11 +205,13 @@ class PinterestService:
                     if new_pin_count <= len(pin_elements):
                         break
 
-            await self.log_session(f"Scraping completed. Found {len(pins_data)} pins")
+            await self.log_session(
+                f"Scraping completed. Found {len(pins_data)} pins", prompt_id
+            )
             return pins_data
 
         except Exception as e:
-            await self.log_session(f"Scraping error: {str(e)}")
+            await self.log_session(f"Scraping error: {str(e)}", prompt_id)
             return []
 
     async def extract_pin_data(self, pin_element) -> Optional[Dict]:
@@ -247,11 +254,25 @@ class PinterestService:
             logger.error(f"Error extracting pin data: {str(e)}")
             return None
 
-    async def log_session(self, message: str):
+    async def log_session(self, message: str, prompt_id: str = None):
         """Log a message to the session."""
         logger.info(message)
-        # This will be used to update the session log in the database
         print(f"[Pinterest Service] {message}")
+
+        # Update session log in database if prompt_id is provided
+        if prompt_id:
+            try:
+                collection = get_collection(SESSIONS_COLLECTION)
+                # Find the latest session for this prompt and stage
+                latest_session = await collection.find_one(
+                    {"prompt_id": prompt_id}, sort=[("timestamp", -1)]
+                )
+                if latest_session:
+                    await collection.update_one(
+                        {"_id": latest_session["_id"]}, {"$push": {"log": message}}
+                    )
+            except Exception as e:
+                logger.error(f"Failed to update session log: {str(e)}")
 
 
 async def run_pinterest_workflow(prompt_id: str, prompt_text: str) -> bool:

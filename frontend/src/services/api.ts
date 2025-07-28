@@ -41,6 +41,12 @@ export const promptService = {
     return response.data;
   },
 
+  // Get sessions for a prompt
+  getSessions: async (promptId: string): Promise<any[]> => {
+    const response = await api.get(`/api/prompts/${promptId}/sessions`);
+    return response.data;
+  },
+
   // Get pins for a prompt
   getPins: async (promptId: string, status?: PinStatus): Promise<Pin[]> => {
     const params = status && status !== 'all' ? { status } : {};

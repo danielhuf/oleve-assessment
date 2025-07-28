@@ -8,7 +8,12 @@ from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 from models import PinDB, PinStatus
-from database import get_collection, PINS_COLLECTION, PROMPTS_COLLECTION
+from database import (
+    get_collection,
+    PINS_COLLECTION,
+    PROMPTS_COLLECTION,
+    SESSIONS_COLLECTION,
+)
 
 load_dotenv()
 
@@ -195,6 +200,21 @@ class AIValidationService:
                 f"Starting validation of {len(pending_pins)} pins for prompt: {prompt_text}"
             )
 
+            # Update session with validation start
+            try:
+                collection = get_collection(SESSIONS_COLLECTION)
+                await collection.insert_one(
+                    {
+                        "prompt_id": prompt_id,
+                        "stage": "validation",
+                        "status": "pending",
+                        "timestamp": datetime.utcnow(),
+                        "log": [f"Starting AI validation of {len(pending_pins)} pins"],
+                    }
+                )
+            except Exception as e:
+                logger.error(f"Failed to create validation session: {str(e)}")
+
             # Process pins in batches to avoid rate limits
             semaphore = asyncio.Semaphore(max_concurrent)
             validated_count = 0
@@ -233,6 +253,27 @@ class AIValidationService:
                         logger.info(
                             f"Validated pin {validated_count}/{len(pending_pins)} - Score: {validation_result['match_score']:.2f} - {validation_result['classification']}"
                         )
+
+                        # Update session log with progress
+                        try:
+                            session_collection = get_collection(SESSIONS_COLLECTION)
+                            latest_session = await session_collection.find_one(
+                                {"prompt_id": prompt_id, "stage": "validation"},
+                                sort=[("timestamp", -1)],
+                            )
+                            if latest_session:
+                                await session_collection.update_one(
+                                    {"_id": latest_session["_id"]},
+                                    {
+                                        "$push": {
+                                            "log": f"Validated pin {validated_count}/{len(pending_pins)} - {validation_result['classification']}"
+                                        }
+                                    },
+                                )
+                        except Exception as e:
+                            logger.error(
+                                f"Failed to update validation session log: {str(e)}"
+                            )
 
                     except Exception as e:
                         logger.error(
