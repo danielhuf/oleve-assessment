@@ -232,17 +232,23 @@ class PinterestService:
             img_element = await pin_element.query_selector("img")
             image_url = await img_element.get_attribute("src") if img_element else ""
 
-            # Get title/description
+            # Get title/description - try multiple selectors
             title_element = await pin_element.query_selector(
-                '[data-test-id="pin-title"]'
+                '[data-test-id="pin-title"], h3, .pin-title, [aria-label*="title"]'
             )
             title = await title_element.text_content() if title_element else ""
 
-            # Get description
+            # Get description - try multiple selectors
             desc_element = await pin_element.query_selector(
-                '[data-test-id="pin-description"]'
+                '[data-test-id="pin-description"], p, .pin-description, [aria-label*="description"]'
             )
             description = await desc_element.text_content() if desc_element else ""
+
+            # Debug logging
+            logger.info(f"Extracted title: '{title[:50]}...' (length: {len(title)})")
+            logger.info(
+                f"Extracted description: '{description[:50]}...' (length: {len(description)})"
+            )
 
             if image_url and pin_url:
                 return {

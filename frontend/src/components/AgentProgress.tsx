@@ -26,8 +26,6 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
     let pollInterval: NodeJS.Timeout;
     
     const pollProgress = async () => {
-      if (!isPolling) return;
-      
       try {
         // Get sessions for real-time progress
         const fetchedSessions = await promptService.getSessions(prompt.id);
@@ -37,8 +35,30 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
         const updatedPrompt = await promptService.getPrompt(prompt.id);
         
         if (updatedPrompt.status === 'completed') {
-          setCurrentMessage('Workflow completed! 🎉');
+          // Show the most recent detailed log message instead of generic completion
+          if (fetchedSessions.length > 0) {
+            const latestSession = fetchedSessions[fetchedSessions.length - 1];
+            if (latestSession.log && latestSession.log.length > 0) {
+              const latestLog = latestSession.log[latestSession.log.length - 1];
+              console.log(`Workflow completed, showing latest log: ${latestLog}`);
+              setCurrentMessage(latestLog);
+            } else {
+              setCurrentMessage('Workflow completed! 🎉');
+            }
+          } else {
+            setCurrentMessage('Workflow completed! 🎉');
+          }
+          
+          // Stop polling immediately
           setIsPolling(false);
+          console.log('Workflow completed - stopping polling');
+          
+          // Clear the interval immediately
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            console.log('Cleared polling interval');
+          }
+          
           // Notify parent to load pins immediately
           if (onWorkflowComplete) {
             onWorkflowComplete();
@@ -49,6 +69,13 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
         if (updatedPrompt.status === 'error') {
           setCurrentMessage('Workflow failed ❌');
           setIsPolling(false);
+          console.log('Workflow failed - stopping polling');
+          
+          // Clear the interval immediately
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            console.log('Cleared polling interval');
+          }
           return;
         }
         
@@ -56,9 +83,26 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
         if (fetchedSessions.length > 0) {
           console.log('Sessions:', fetchedSessions); // Debug log
           
-          // Find the current active stage (not completed)
+          // Find the current active stage (not completed) and the most recent session with logs
           const activeSession = fetchedSessions.find(s => s.status === 'pending');
           const latestSession = fetchedSessions[fetchedSessions.length - 1];
+          
+          // Find the session with the most recent log message
+          let sessionWithLatestLog = null;
+          let latestLogMessage = '';
+          
+          for (const session of fetchedSessions) {
+            if (session.log && session.log.length > 0) {
+              const lastLog = session.log[session.log.length - 1];
+              if (!latestLogMessage || session.timestamp > sessionWithLatestLog.timestamp) {
+                latestLogMessage = lastLog;
+                sessionWithLatestLog = session;
+              }
+            }
+          }
+          
+          console.log('Active session:', activeSession?.stage, activeSession?.status);
+          console.log('Latest session:', latestSession?.stage, latestSession?.status);
           
           if (activeSession) {
             setCurrentStage(activeSession.stage);
@@ -70,8 +114,13 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
             } else {
               setCurrentMessage(getDefaultMessage(activeSession.stage));
             }
+          } else if (sessionWithLatestLog) {
+            // Show the most recent log message from any session
+            setCurrentStage(sessionWithLatestLog.stage);
+            console.log(`Most recent log: ${latestLogMessage}`); // Debug log
+            setCurrentMessage(latestLogMessage);
           } else if (latestSession) {
-            // All stages completed, show the last stage
+            // Fallback to latest session
             setCurrentStage(latestSession.stage);
             if (latestSession.log && latestSession.log.length > 0) {
               const latestLog = latestSession.log[latestSession.log.length - 1];
@@ -95,12 +144,22 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
     // Initial poll
     pollProgress();
     
-    // Set up polling interval (every 2 seconds)
-    pollInterval = setInterval(pollProgress, 2000);
+    // Set up polling interval (every 2 seconds) only if still polling
+    pollInterval = setInterval(() => {
+      if (isPolling) {
+        pollProgress();
+      } else {
+        clearInterval(pollInterval);
+        console.log('Stopped polling due to isPolling = false');
+      }
+    }, 2000);
     
     // Cleanup
     return () => {
-      clearInterval(pollInterval);
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        console.log('Cleaning up polling interval');
+      }
       setIsPolling(false);
     };
   }, [prompt.id]);
@@ -189,20 +248,20 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplet
           {isPolling && <span className="live-indicator">●</span>}
         </div>
         
-        {/* Show recent log history for debugging */}
+        {/* Show recent log history */}
         {sessions.length > 0 && (
           <div className="log-history">
             <details>
-              <summary>📋 Recent Logs (Click to expand)</summary>
+              <summary>📋 Log History</summary>
               <div className="log-entries">
                 {sessions.map((session, index) => (
                   <div key={index} className="log-session">
                     <div className="log-session-header">
-                      <strong>{session.stage}</strong> - {session.status}
+                      {session.stage} - {session.status}
                     </div>
                     {session.log && session.log.length > 0 && (
                       <div className="log-session-entries">
-                        {session.log.slice(-3).map((logEntry, logIndex) => (
+                        {session.log.slice(-2).map((logEntry, logIndex) => (
                           <div key={logIndex} className="log-entry">
                             {logEntry}
                           </div>
