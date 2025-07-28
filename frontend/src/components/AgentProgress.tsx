@@ -4,6 +4,7 @@ import { promptService } from '../services/api';
 
 interface AgentProgressProps {
   prompt: Prompt;
+  onWorkflowComplete?: () => void;
 }
 
 interface Session {
@@ -15,7 +16,7 @@ interface Session {
   log: string[];
 }
 
-const AgentProgress: React.FC<AgentProgressProps> = ({ prompt }) => {
+const AgentProgress: React.FC<AgentProgressProps> = ({ prompt, onWorkflowComplete }) => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentStage, setCurrentStage] = useState<'warmup' | 'scraping' | 'validation'>('warmup');
   const [currentMessage, setCurrentMessage] = useState<string>('Initializing...');
@@ -38,6 +39,10 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt }) => {
         if (updatedPrompt.status === 'completed') {
           setCurrentMessage('Workflow completed! 🎉');
           setIsPolling(false);
+          // Notify parent to load pins immediately
+          if (onWorkflowComplete) {
+            onWorkflowComplete();
+          }
           return;
         }
         
@@ -49,15 +54,32 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt }) => {
         
         // Determine current stage and message from sessions
         if (fetchedSessions.length > 0) {
-          const latestSession = fetchedSessions[fetchedSessions.length - 1];
-          setCurrentStage(latestSession.stage);
+          console.log('Sessions:', fetchedSessions); // Debug log
           
-          // Get the latest log message
-          if (latestSession.log && latestSession.log.length > 0) {
-            setCurrentMessage(latestSession.log[latestSession.log.length - 1]);
-          } else {
-            setCurrentMessage(getDefaultMessage(latestSession.stage));
+          // Find the current active stage (not completed)
+          const activeSession = fetchedSessions.find(s => s.status === 'pending');
+          const latestSession = fetchedSessions[fetchedSessions.length - 1];
+          
+          if (activeSession) {
+            setCurrentStage(activeSession.stage);
+            // Get the latest log message from active session
+            if (activeSession.log && activeSession.log.length > 0) {
+              setCurrentMessage(activeSession.log[activeSession.log.length - 1]);
+            } else {
+              setCurrentMessage(getDefaultMessage(activeSession.stage));
+            }
+          } else if (latestSession) {
+            // All stages completed, show the last stage
+            setCurrentStage(latestSession.stage);
+            if (latestSession.log && latestSession.log.length > 0) {
+              setCurrentMessage(latestSession.log[latestSession.log.length - 1]);
+            } else {
+              setCurrentMessage(getDefaultMessage(latestSession.stage));
+            }
           }
+        } else {
+          // No sessions yet, show initializing
+          setCurrentMessage('Initializing...');
         }
         
       } catch (error) {
@@ -77,7 +99,7 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt }) => {
       clearInterval(pollInterval);
       setIsPolling(false);
     };
-  }, [prompt.id, isPolling]);
+  }, [prompt.id]);
 
   const getDefaultMessage = (stage: string): string => {
     switch (stage) {
@@ -105,113 +127,68 @@ const AgentProgress: React.FC<AgentProgressProps> = ({ prompt }) => {
     }
   };
 
-  const getStageDescription = (stage: string) => {
-    switch (stage) {
-      case 'warmup':
-        return 'Searching Pinterest and engaging with content to align recommendations';
-      case 'scraping':
-        return 'Extracting relevant pins based on your prompt';
-      case 'validation':
-        return 'AI is analyzing each image to determine match quality';
-      default:
-        return 'Processing your request...';
-    }
-  };
-
-  const isStageCompleted = (stage: string): boolean => {
-    return sessions.some(s => s.stage === stage && s.status === 'completed');
-  };
-
-  const isStageActive = (stage: string): boolean => {
-    return currentStage === stage && isPolling;
-  };
-
   const getStageStatus = (stage: string): 'completed' | 'active' | 'pending' => {
-    if (isStageCompleted(stage)) return 'completed';
-    if (isStageActive(stage)) return 'active';
+    // Check if this stage has been completed
+    const stageCompleted = sessions.some(s => s.stage === stage && s.status === 'completed');
+    
+    // Check if this stage is currently active
+    const stageActive = currentStage === stage && isPolling;
+    
+    // Check if we've moved past this stage (completed or failed)
+    const stagePassed = sessions.some(s => s.stage === stage && (s.status === 'completed' || s.status === 'failed'));
+    
+    if (stageCompleted || stagePassed) return 'completed';
+    if (stageActive) return 'active';
     return 'pending';
   };
+
+  const stages = [
+    { key: 'warmup', label: 'Warm-up', icon: '🔥' },
+    { key: 'scraping', label: 'Scraping', icon: '🔍' },
+    { key: 'validation', label: 'AI Validation', icon: '🤖' }
+  ];
 
   return (
     <div className="agent-progress">
       <div className="progress-header">
         <h3>Agent Progress</h3>
-        <div className="progress-status">
-          <span className="status-message">{currentMessage}</span>
-          {isPolling && <span className="pulse-dot">●</span>}
-        </div>
+        {isPolling && <span className="pulse-dot">●</span>}
       </div>
       
-      <div className="progress-stages">
-        <div className={`stage ${getStageStatus('warmup')}`}>
-          <div className="stage-icon">🔥</div>
-          <div className="stage-info">
-            <div className="stage-name">Warm-up</div>
-            <div className="stage-desc">Aligning Pinterest recommendations</div>
-            {isStageActive('warmup') && (
-              <div className="stage-logs">
-                {sessions
-                  .filter(s => s.stage === 'warmup')
-                  .flatMap(s => s.log)
-                  .slice(-3)
-                  .map((log, i) => (
-                    <div key={i} className="log-entry">• {log}</div>
-                  ))}
+      {/* Simple Horizontal Progress Tracker */}
+      <div className="progress-tracker">
+        {stages.map((stage, index) => {
+          const status = getStageStatus(stage.key as any);
+          const isLast = index === stages.length - 1;
+          
+          return (
+            <React.Fragment key={stage.key}>
+              <div className={`tracker-step ${status}`}>
+                <div className="step-icon">
+                  {status === 'completed' ? '✓' : stage.icon}
+                </div>
+                <div className="step-label">{stage.label}</div>
               </div>
-            )}
-          </div>
-        </div>
-        
-        <div className={`stage ${getStageStatus('scraping')}`}>
-          <div className="stage-icon">🔍</div>
-          <div className="stage-info">
-            <div className="stage-name">Scraping</div>
-            <div className="stage-desc">Extracting relevant pins</div>
-            {isStageActive('scraping') && (
-              <div className="stage-logs">
-                {sessions
-                  .filter(s => s.stage === 'scraping')
-                  .flatMap(s => s.log)
-                  .slice(-3)
-                  .map((log, i) => (
-                    <div key={i} className="log-entry">• {log}</div>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div className={`stage ${getStageStatus('validation')}`}>
-          <div className="stage-icon">🤖</div>
-          <div className="stage-info">
-            <div className="stage-name">AI Validation</div>
-            <div className="stage-desc">Analyzing image quality</div>
-            {isStageActive('validation') && (
-              <div className="stage-logs">
-                {sessions
-                  .filter(s => s.stage === 'validation')
-                  .flatMap(s => s.log)
-                  .slice(-3)
-                  .map((log, i) => (
-                    <div key={i} className="log-entry">• {log}</div>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
+              {!isLast && (
+                <div className={`tracker-line ${status === 'completed' ? 'completed' : 'pending'}`} />
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
       
-      <div className="current-stage-info">
-        <div className="stage-icon-large">{getStageIcon(currentStage)}</div>
-        <div className="stage-details">
-          <h4>Current Stage: {currentStage.charAt(0).toUpperCase() + currentStage.slice(1)}</h4>
-          <p>{getStageDescription(currentStage)}</p>
+      {/* Real-time Log Updates */}
+      <div className="log-updates">
+        <div className="log-message">
+          <span className="log-icon">{getStageIcon(currentStage)}</span>
+          <span className="log-text">{currentMessage}</span>
+          {isPolling && <span className="live-indicator">●</span>}
         </div>
       </div>
       
       <div className="progress-note">
         <p>⏱️ This process typically takes 3-5 minutes. Please don't close this page.</p>
-        {isPolling && <p className="live-indicator">🔄 Live updates enabled</p>}
+        {isPolling && <p className="live-updates">🔄 Live updates enabled</p>}
       </div>
     </div>
   );

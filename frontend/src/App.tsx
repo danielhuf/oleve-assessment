@@ -11,6 +11,7 @@ function App() {
   const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
   const [pins, setPins] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingPins, setLoadingPins] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load prompts on component mount
@@ -32,6 +33,10 @@ function App() {
     setLoading(true);
     setError(null);
     try {
+      // Clear existing pins and show skeleton for new workflow
+      setPins([]);
+      setLoadingPins(true);
+      
       // Create the prompt first
       const newPrompt = await promptService.createPrompt(text);
       setPrompts(prev => [newPrompt, ...prev]);
@@ -48,6 +53,7 @@ function App() {
     } catch (err) {
       setError('Failed to start agent workflow');
       console.error('Error starting agent workflow:', err);
+      setLoadingPins(false); // Stop skeleton if there's an error
     } finally {
       setLoading(false);
     }
@@ -90,18 +96,23 @@ function App() {
   };
 
   const handleLoadPins = async (promptId: string) => {
+    setLoadingPins(true);
     try {
       const fetchedPins = await promptService.getPins(promptId);
       setPins(fetchedPins);
     } catch (err) {
       setError('Failed to load pins');
       console.error('Error loading pins:', err);
+    } finally {
+      setLoadingPins(false);
     }
   };
 
   const handleSelectPrompt = (prompt: Prompt) => {
     setCurrentPrompt(prompt);
     if (prompt.status === 'completed') {
+      // Clear existing pins and show skeleton while loading
+      setPins([]);
       handleLoadPins(prompt.id);
     }
   };
@@ -174,7 +185,11 @@ function App() {
           {currentPrompt && currentPrompt.status === 'processing' && (
             <div className="progress-section">
               <h2>Processing: "{currentPrompt.text}"</h2>
-              <AgentProgress key={currentPrompt.id} prompt={currentPrompt} />
+              <AgentProgress 
+                key={currentPrompt.id} 
+                prompt={currentPrompt} 
+                onWorkflowComplete={() => handleLoadPins(currentPrompt.id)}
+              />
             </div>
           )}
 
@@ -195,7 +210,31 @@ function App() {
                 </div>
               </div>
               
-              {pins.length > 0 && (
+              {(loadingPins || (currentPrompt.status === 'processing' && pins.length === 0)) && (
+                <div className="pins-skeleton">
+                  <div className="skeleton-header">
+                    <div className="skeleton-title"></div>
+                    <div className="skeleton-stats">
+                      <div className="skeleton-stat"></div>
+                      <div className="skeleton-stat"></div>
+                      <div className="skeleton-stat"></div>
+                    </div>
+                  </div>
+                  <div className="skeleton-grid">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="skeleton-card">
+                        <div className="skeleton-image"></div>
+                        <div className="skeleton-content">
+                          <div className="skeleton-text"></div>
+                          <div className="skeleton-text short"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {!loadingPins && pins.length > 0 && (
                 <ImageReview 
                   pins={pins} 
                   prompt={currentPrompt}

@@ -88,9 +88,10 @@ class PinterestService:
         try:
             await self.log_session("Starting Pinterest warm-up phase...", prompt_id)
 
-            # Login first
-            if not await self.login_to_pinterest():
-                return False
+            # Try cookie login first, then fallback to regular login
+            if not await self.login_with_cookies():
+                if not await self.login_to_pinterest():
+                    return False
 
             # Search for the prompt
             await self.log_session(f"Searching for: {prompt_text}", prompt_id)
@@ -253,6 +254,50 @@ class PinterestService:
         except Exception as e:
             logger.error(f"Error extracting pin data: {str(e)}")
             return None
+
+    async def login_with_cookies(self) -> bool:
+        """Login using session cookies to bypass login limits."""
+        try:
+            await self.log_session("Attempting login with session cookies...")
+
+            # Get cookies from environment
+            cookies_str = os.getenv("PINTEREST_COOKIES")
+            if not cookies_str:
+                await self.log_session("No session cookies found")
+                return False
+
+            # Parse cookies
+            cookies = []
+            for cookie in cookies_str.split(";"):
+                if "=" in cookie:
+                    name, value = cookie.strip().split("=", 1)
+                    cookies.append(
+                        {
+                            "name": name,
+                            "value": value,
+                            "domain": ".pinterest.com",
+                            "path": "/",
+                        }
+                    )
+
+            # Set cookies
+            await self.page.context.add_cookies(cookies)
+
+            # Navigate to Pinterest
+            await self.page.goto("https://www.pinterest.com/")
+            await self.page.wait_for_load_state("networkidle")
+
+            # Check if we're logged in
+            if "login" not in self.page.url:
+                await self.log_session("Successfully logged in with session cookies")
+                return True
+            else:
+                await self.log_session("Session cookies expired or invalid")
+                return False
+
+        except Exception as e:
+            await self.log_session(f"Cookie login error: {str(e)}")
+            return False
 
     async def log_session(self, message: str, prompt_id: str = None):
         """Log a message to the session."""
