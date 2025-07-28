@@ -33,7 +33,7 @@ const PromptSubmission: React.FC<PromptSubmissionProps> = ({ onSubmit, loading }
             disabled={loading || !promptText.trim()}
             className="submit-btn"
           >
-            {loading ? 'Creating...' : 'Create Prompt'}
+            {loading ? 'Starting Agent...' : 'Start Agent'}
           </button>
         </div>
       </form>

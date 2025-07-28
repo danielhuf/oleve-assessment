@@ -28,16 +28,26 @@ function App() {
     }
   };
 
-  const handleCreatePrompt = async (text: string) => {
+  const handleStartAgent = async (text: string) => {
     setLoading(true);
     setError(null);
     try {
+      // Create the prompt first
       const newPrompt = await promptService.createPrompt(text);
       setPrompts(prev => [newPrompt, ...prev]);
       setCurrentPrompt(newPrompt);
+      
+      // Immediately start the Pinterest workflow
+      await promptService.startWorkflow(newPrompt.id);
+      
+      // Update prompt status to processing
+      setPrompts(prev => prev.map(p => 
+        p.id === newPrompt.id ? { ...p, status: 'processing' as const } : p
+      ));
+      setCurrentPrompt(prev => prev?.id === newPrompt.id ? { ...prev, status: 'processing' } : prev);
     } catch (err) {
-      setError('Failed to create prompt');
-      console.error('Error creating prompt:', err);
+      setError('Failed to start agent workflow');
+      console.error('Error starting agent workflow:', err);
     } finally {
       setLoading(false);
     }
@@ -129,7 +139,7 @@ function App() {
           <div className="prompt-input-section">
             <h2>Create New Prompt</h2>
             <PromptSubmission 
-              onSubmit={handleCreatePrompt} 
+              onSubmit={handleStartAgent} 
               loading={loading} 
             />
             
@@ -174,16 +184,6 @@ function App() {
               <div className="results-header">
                 <h2>Results for: "{currentPrompt.text}"</h2>
                 <div className="prompt-actions">
-                  {currentPrompt.status === 'pending' && (
-                    <button 
-                      onClick={() => handleStartWorkflow(currentPrompt.id)}
-                      disabled={loading}
-                      className="btn-primary"
-                    >
-                      {loading ? 'Starting...' : 'Start Pinterest Workflow'}
-                    </button>
-                  )}
-                  
                   {currentPrompt.status === 'completed' && pins.length === 0 && (
                     <button 
                       onClick={() => handleLoadPins(currentPrompt.id)}
