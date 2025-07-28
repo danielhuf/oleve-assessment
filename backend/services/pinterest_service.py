@@ -63,8 +63,7 @@ class PinterestService:
 
             # Fill email
             await self.page.fill('input[name="id"]', self.email)
-            await self.page.click('button[type="submit"]')
-            await self.page.wait_for_timeout(2000)
+            await self.page.wait_for_timeout(1000)
 
             # Fill password
             await self.page.fill('input[name="password"]', self.password)
