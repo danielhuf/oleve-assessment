@@ -10,15 +10,22 @@ interface ImageReviewProps {
 const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidation }) => {
   const [filter, setFilter] = useState<PinStatus>('all');
   const [showExplanations, setShowExplanations] = useState(false);
+  const [scoreThreshold, setScoreThreshold] = useState<number>(0.0);
 
   const approvedPins = pins.filter(pin => pin.status === 'approved');
   const disqualifiedPins = pins.filter(pin => pin.status === 'disqualified');
 
-  const filteredPins = filter === 'all' 
-    ? pins 
-    : filter === 'approved' 
-    ? approvedPins 
-    : disqualifiedPins;
+  const filteredPins = pins
+    .filter(pin => {
+      // Apply status filter
+      if (filter === 'approved' && pin.status !== 'approved') return false;
+      if (filter === 'disqualified' && pin.status !== 'disqualified') return false;
+      
+      // Apply score threshold filter
+      if (pin.match_score < scoreThreshold) return false;
+      
+      return true;
+    });
 
   const getMatchScoreColor = (score: number) => {
     if (score >= 0.8) return '#10b981'; // green
@@ -57,21 +64,8 @@ const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidati
         </div>
 
         <div className="review-controls">
-          <div className="filter-controls">
-            <label>Show:</label>
-            <select 
-              value={filter} 
-              onChange={(e) => setFilter(e.target.value as PinStatus)}
-              className="filter-select"
-            >
-              <option value="all">All ({pins.length})</option>
-              <option value="approved">Approved ({approvedPins.length})</option>
-              <option value="disqualified">Disqualified ({disqualifiedPins.length})</option>
-            </select>
-          </div>
-
-          <div className="view-controls">
-            <label>
+          <div className="control-group">
+            <label className="ai-reasonings-toggle">
               <input
                 type="checkbox"
                 checked={showExplanations}
@@ -79,6 +73,34 @@ const ImageReview: React.FC<ImageReviewProps> = ({ pins, prompt, onStartValidati
               />
               Show AI reasonings
             </label>
+            
+            <div className="score-threshold-control">
+              <label>
+                Min Score: {Math.round(scoreThreshold * 100)}%
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={Math.round(scoreThreshold * 100)}
+                  onChange={(e) => setScoreThreshold(parseInt(e.target.value) / 100)}
+                  className="score-slider"
+                />
+              </label>
+            </div>
+            
+            <div className="filter-controls">
+              <label>Show:</label>
+              <select 
+                value={filter} 
+                onChange={(e) => setFilter(e.target.value as PinStatus)}
+                className="filter-select"
+              >
+                <option value="all">All ({pins.length})</option>
+                <option value="approved">Approved ({approvedPins.length})</option>
+                <option value="disqualified">Disqualified ({disqualifiedPins.length})</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
