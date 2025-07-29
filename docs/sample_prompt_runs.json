@@ -1,0 +1,320 @@
+{
+    "sample_runs": [
+        {
+            "prompt": {
+                "id": "65a1234567890abcdef12345",
+                "text": "boho minimalist bedroom",
+                "created_at": "2024-01-15T10:30:00Z",
+                "status": "completed"
+            },
+            "sessions": [
+                {
+                    "id": "65a1234567890abcdef12346",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "stage": "warmup",
+                    "status": "completed",
+                    "timestamp": "2024-01-15T10:30:15Z",
+                    "log": [
+                        "Starting Pinterest warm-up for: boho minimalist bedroom",
+                        "Generated search terms: ['boho decor', 'minimalist furniture', 'neutral bedroom', 'natural textures', 'simple bedroom design']",
+                        "Searching for: boho decor (found 50+ pins)",
+                        "Engaging with 5 pins, average view time: 3.2s",
+                        "Searching for: minimalist furniture (found 40+ pins)",
+                        "Engaging with 4 pins, average view time: 2.8s",
+                        "Searching for: neutral bedroom (found 60+ pins)",
+                        "Engaging with 6 pins, average view time: 4.1s",
+                        "Warm-up completed successfully - algorithm aligned"
+                    ]
+                },
+                {
+                    "id": "65a1234567890abcdef12347",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "stage": "scraping",
+                    "status": "completed",
+                    "timestamp": "2024-01-15T10:32:45Z",
+                    "log": [
+                        "Starting Pinterest scraping for: boho minimalist bedroom",
+                        "Main search: 'boho minimalist bedroom' (found 120+ results)",
+                        "Extracted pin 1/25: Neutral Boho Bedroom Decor",
+                        "Extracted pin 2/25: Minimalist Bedroom with Natural Textures",
+                        "Extracted pin 3/25: Simple Boho Bedroom Ideas",
+                        "...continuing extraction...",
+                        "Extracted pin 24/25: Cozy Minimalist Bedroom Design",
+                        "Extracted pin 25/25: Boho Chic Bedroom Inspiration",
+                        "Scraping completed: 25 pins extracted successfully"
+                    ]
+                },
+                {
+                    "id": "65a1234567890abcdef12348",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "stage": "validation",
+                    "status": "completed",
+                    "timestamp": "2024-01-15T10:35:20Z",
+                    "log": [
+                        "Starting AI validation for 25 pins",
+                        "Validating pin 1/25: score=0.92 (approved)",
+                        "Validating pin 2/25: score=0.78 (approved)",
+                        "Validating pin 3/25: score=0.45 (disqualified)",
+                        "Validating pin 4/25: score=0.88 (approved)",
+                        "...continuing validation...",
+                        "Validating pin 24/25: score=0.72 (approved)",
+                        "Validating pin 25/25: score=0.38 (disqualified)",
+                        "Validation completed: 19 approved, 6 disqualified"
+                    ]
+                }
+            ],
+            "pins": [
+                {
+                    "id": "65a1234567890abcdef12349",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "image_url": "https://i.pinimg.com/564x/a1/b2/c3/a1b2c3d4e5f6789012345678.jpg",
+                    "pin_url": "https://pinterest.com/pin/123456789012345678/",
+                    "title": "Neutral Boho Bedroom Decor Ideas",
+                    "description": "Create a serene bedroom with natural textures, neutral colors, and minimalist boho elements. Featuring linen bedding, macrame wall art, and wooden accents.",
+                    "match_score": 0.92,
+                    "status": "approved",
+                    "ai_explanation": "Excellent match - perfectly combines boho elements (macrame, natural textures) with minimalist design (clean lines, neutral palette). The room demonstrates restraint typical of minimalism while incorporating bohemian warmth through natural materials.",
+                    "metadata": {
+                        "collected_at": "2024-01-15T10:33:12Z",
+                        "board_name": "Bedroom Inspiration",
+                        "pin_id": "123456789012345678"
+                    }
+                },
+                {
+                    "id": "65a1234567890abcdef12350",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "image_url": "https://i.pinimg.com/564x/d4/e5/f6/d4e5f6789012345678901234.jpg",
+                    "pin_url": "https://pinterest.com/pin/234567890123456789/",
+                    "title": "Minimalist Bedroom with Natural Textures",
+                    "description": "Simple bedroom design featuring organic cotton bedding, jute rugs, and carefully curated decor pieces for a calm, uncluttered space.",
+                    "match_score": 0.78,
+                    "status": "approved",
+                    "ai_explanation": "Good alignment with the prompt. Strong minimalist foundation with clean white walls and simple furniture. Natural textures (jute, cotton) add subtle boho influences without overwhelming the minimalist aesthetic.",
+                    "metadata": {
+                        "collected_at": "2024-01-15T10:33:28Z",
+                        "board_name": "Minimalist Living",
+                        "pin_id": "234567890123456789"
+                    }
+                },
+                {
+                    "id": "65a1234567890abcdef12351",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "image_url": "https://i.pinimg.com/564x/g7/h8/i9/g7h8i9012345678901234567.jpg",
+                    "pin_url": "https://pinterest.com/pin/345678901234567890/",
+                    "title": "Colorful Bohemian Bedroom Design",
+                    "description": "Vibrant boho bedroom with rich jewel tones, patterned textiles, and eclectic furniture pieces for a maximalist bohemian look.",
+                    "match_score": 0.45,
+                    "status": "disqualified",
+                    "ai_explanation": "Poor match - while this is clearly bohemian in style, it completely contradicts the 'minimalist' aspect of the prompt. The room features excessive patterns, bright colors, and cluttered decor that goes against minimalist principles.",
+                    "metadata": {
+                        "collected_at": "2024-01-15T10:33:44Z",
+                        "board_name": "Boho Decor",
+                        "pin_id": "345678901234567890"
+                    }
+                },
+                {
+                    "id": "65a1234567890abcdef12352",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "image_url": "https://i.pinimg.com/564x/j1/k2/l3/j1k2l3456789012345678901.jpg",
+                    "pin_url": "https://pinterest.com/pin/456789012345678901/",
+                    "title": "Sage Green Minimalist Bedroom",
+                    "description": "Peaceful bedroom sanctuary with sage green accents, natural wood elements, and carefully selected boho touches for warmth.",
+                    "match_score": 0.88,
+                    "status": "approved",
+                    "ai_explanation": "Strong match - demonstrates perfect balance between minimalist restraint and boho warmth. Sage green adds color without being overwhelming, wood elements provide natural boho texture, and the overall composition remains clean and uncluttered.",
+                    "metadata": {
+                        "collected_at": "2024-01-15T10:34:02Z",
+                        "board_name": "Green Bedroom Ideas",
+                        "pin_id": "456789012345678901"
+                    }
+                },
+                {
+                    "id": "65a1234567890abcdef12353",
+                    "prompt_id": "65a1234567890abcdef12345",
+                    "image_url": "https://i.pinimg.com/564x/m4/n5/o6/m4n5o6789012345678901234.jpg",
+                    "pin_url": "https://pinterest.com/pin/567890123456789012/",
+                    "title": "Modern Industrial Bedroom",
+                    "description": "Contemporary bedroom featuring exposed brick, metal fixtures, and modern furniture for an urban industrial aesthetic.",
+                    "match_score": 0.25,
+                    "status": "disqualified",
+                    "ai_explanation": "Very poor match - this is clearly an industrial style bedroom with no boho or minimalist elements. The exposed brick, metal fixtures, and urban aesthetic are completely different from the warm, natural, minimal boho style requested.",
+                    "metadata": {
+                        "collected_at": "2024-01-15T10:34:18Z",
+                        "board_name": "Industrial Design",
+                        "pin_id": "567890123456789012"
+                    }
+                }
+            ],
+            "summary": {
+                "total_pins": 25,
+                "approved_pins": 19,
+                "disqualified_pins": 6,
+                "approval_rate": 0.76,
+                "average_match_score": 0.68,
+                "processing_time_minutes": 4.83
+            }
+        },
+        {
+            "prompt": {
+                "id": "65a2345678901abcdef23456",
+                "text": "cozy industrial home office",
+                "created_at": "2024-01-16T14:15:00Z",
+                "status": "completed"
+            },
+            "sessions": [
+                {
+                    "id": "65a2345678901abcdef23457",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "stage": "warmup",
+                    "status": "completed",
+                    "timestamp": "2024-01-16T14:15:12Z",
+                    "log": [
+                        "Starting Pinterest warm-up for: cozy industrial home office",
+                        "Generated search terms: ['industrial decor', 'home office design', 'cozy workspace', 'exposed brick office', 'warm industrial']",
+                        "Searching for: industrial decor (found 80+ pins)",
+                        "Engaging with 6 pins, average view time: 3.5s",
+                        "Searching for: home office design (found 100+ pins)",
+                        "Engaging with 7 pins, average view time: 4.2s",
+                        "Searching for: cozy workspace (found 65+ pins)",
+                        "Engaging with 5 pins, average view time: 3.8s",
+                        "Warm-up completed successfully - algorithm aligned"
+                    ]
+                },
+                {
+                    "id": "65a2345678901abcdef23458",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "stage": "scraping",
+                    "status": "completed",
+                    "timestamp": "2024-01-16T14:17:35Z",
+                    "log": [
+                        "Starting Pinterest scraping for: cozy industrial home office",
+                        "Main search: 'cozy industrial home office' (found 95+ results)",
+                        "Extracted pin 1/28: Industrial Home Office with Warm Lighting",
+                        "Extracted pin 2/28: Cozy Brick Wall Office Space",
+                        "Extracted pin 3/28: Modern Industrial Workspace Design",
+                        "...continuing extraction...",
+                        "Extracted pin 27/28: Warm Industrial Office Decor",
+                        "Extracted pin 28/28: Cozy Industrial Study Room",
+                        "Scraping completed: 28 pins extracted successfully"
+                    ]
+                },
+                {
+                    "id": "65a2345678901abcdef23459",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "stage": "validation",
+                    "status": "completed",
+                    "timestamp": "2024-01-16T14:20:15Z",
+                    "log": [
+                        "Starting AI validation for 28 pins",
+                        "Validating pin 1/28: score=0.85 (approved)",
+                        "Validating pin 2/28: score=0.91 (approved)",
+                        "Validating pin 3/28: score=0.42 (disqualified)",
+                        "Validating pin 4/28: score=0.77 (approved)",
+                        "...continuing validation...",
+                        "Validating pin 27/28: score=0.69 (approved)",
+                        "Validating pin 28/28: score=0.83 (approved)",
+                        "Validation completed: 21 approved, 7 disqualified"
+                    ]
+                }
+            ],
+            "pins": [
+                {
+                    "id": "65a2345678901abcdef23460",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "image_url": "https://i.pinimg.com/564x/p7/q8/r9/p7q8r9012345678901234567.jpg",
+                    "pin_url": "https://pinterest.com/pin/678901234567890123/",
+                    "title": "Industrial Home Office with Warm Lighting",
+                    "description": "Perfectly balanced industrial office featuring exposed brick, metal desk, Edison bulb lighting, and cozy textile elements for warmth.",
+                    "match_score": 0.85,
+                    "status": "approved",
+                    "ai_explanation": "Excellent balance of industrial and cozy elements. The exposed brick and metal furniture provide clear industrial aesthetic, while warm Edison lighting, wooden accents, and soft textiles add the cozy comfort element.",
+                    "metadata": {
+                        "collected_at": "2024-01-16T14:18:22Z",
+                        "board_name": "Office Inspiration",
+                        "pin_id": "678901234567890123"
+                    }
+                },
+                {
+                    "id": "65a2345678901abcdef23461",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "image_url": "https://i.pinimg.com/564x/s1/t2/u3/s1t2u3456789012345678901.jpg",
+                    "pin_url": "https://pinterest.com/pin/789012345678901234/",
+                    "title": "Cozy Brick Wall Office Space",
+                    "description": "Home office design combining industrial brick walls with warm wood desk, comfortable seating, and ambient lighting for productivity.",
+                    "match_score": 0.91,
+                    "status": "approved",
+                    "ai_explanation": "Outstanding match - perfectly embodies 'cozy industrial'. Brick wall provides strong industrial foundation, while warm wood desk, comfortable chair, and soft lighting create an inviting, cozy workspace atmosphere.",
+                    "metadata": {
+                        "collected_at": "2024-01-16T14:18:38Z",
+                        "board_name": "Cozy Workspaces",
+                        "pin_id": "789012345678901234"
+                    }
+                },
+                {
+                    "id": "65a2345678901abcdef23462",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "image_url": "https://i.pinimg.com/564x/v4/w5/x6/v4w5x6789012345678901234.jpg",
+                    "pin_url": "https://pinterest.com/pin/890123456789012345/",
+                    "title": "Modern Industrial Workspace Design",
+                    "description": "Sleek industrial office with polished concrete floors, steel fixtures, and minimal decor for a clean, modern workspace.",
+                    "match_score": 0.42,
+                    "status": "disqualified",
+                    "ai_explanation": "Insufficient cozy elements - while clearly industrial in style, this space lacks the warmth and comfort suggested by 'cozy'. The polished concrete, steel fixtures, and minimal approach create a cold rather than inviting atmosphere.",
+                    "metadata": {
+                        "collected_at": "2024-01-16T14:18:55Z",
+                        "board_name": "Modern Office Design",
+                        "pin_id": "890123456789012345"
+                    }
+                },
+                {
+                    "id": "65a2345678901abcdef23463",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "image_url": "https://i.pinimg.com/564x/y7/z8/a9/y7z8a9012345678901234567.jpg",
+                    "pin_url": "https://pinterest.com/pin/901234567890123456/",
+                    "title": "Rustic Farmhouse Office",
+                    "description": "Charming farmhouse office featuring reclaimed wood, vintage decor, and shabby chic elements for a cozy country workspace.",
+                    "match_score": 0.33,
+                    "status": "disqualified",
+                    "ai_explanation": "Wrong style category - this is clearly farmhouse/rustic style, not industrial. While it achieves the 'cozy' aspect well, it completely lacks industrial elements like metal, brick, or concrete that define the requested aesthetic.",
+                    "metadata": {
+                        "collected_at": "2024-01-16T14:19:12Z",
+                        "board_name": "Farmhouse Decor",
+                        "pin_id": "901234567890123456"
+                    }
+                },
+                {
+                    "id": "65a2345678901abcdef23464",
+                    "prompt_id": "65a2345678901abcdef23456",
+                    "image_url": "https://i.pinimg.com/564x/b1/c2/d3/b1c2d3456789012345678901.jpg",
+                    "pin_url": "https://pinterest.com/pin/012345678901234567/",
+                    "title": "Warm Industrial Office Decor",
+                    "description": "Industrial office space softened with warm leather chair, wool rug, and brass accents while maintaining metal and concrete elements.",
+                    "match_score": 0.77,
+                    "status": "approved",
+                    "ai_explanation": "Good integration of industrial and cozy elements. Metal shelving and concrete walls provide industrial foundation, while leather furniture, wool textiles, and brass fixtures add warmth and comfort without compromising the industrial aesthetic.",
+                    "metadata": {
+                        "collected_at": "2024-01-16T14:19:28Z",
+                        "board_name": "Industrial Decor",
+                        "pin_id": "012345678901234567"
+                    }
+                }
+            ],
+            "summary": {
+                "total_pins": 28,
+                "approved_pins": 21,
+                "disqualified_pins": 7,
+                "approval_rate": 0.75,
+                "average_match_score": 0.71,
+                "processing_time_minutes": 5.25
+            }
+        }
+    ],
+    "metadata": {
+        "export_date": "2024-01-16T15:30:00Z",
+        "ai_model": "gpt-4o-mini",
+        "validation_threshold": 0.5,
+        "total_runs": 2,
+        "avg_approval_rate": 0.755,
+        "avg_processing_time": 5.04
+    }
+}
