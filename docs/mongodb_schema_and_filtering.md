@@ -249,25 +249,6 @@ pipeline = [
 ]
 ```
 
-## 🚀 Performance Considerations
-
-### Indexes Recommended
-
-```javascript
-// Recommended indexes for better query performance
-db.prompts.createIndex({"created_at": -1})
-db.sessions.createIndex({"prompt_id": 1, "timestamp": 1})
-db.pins.createIndex({"prompt_id": 1, "status": 1})
-db.pins.createIndex({"match_score": -1})
-```
-
-### Query Optimization
-
-1. **Always use ObjectId validation** before querying
-2. **Implement pagination** for large result sets
-3. **Use projection** to limit returned fields when not all data is needed
-4. **Consider compound indexes** for frequently combined filters
-
 ## 📝 API Endpoints Summary
 
 | Endpoint | Method | Filtering Capabilities |
@@ -278,5 +259,3 @@ db.pins.createIndex({"match_score": -1})
 | `/api/prompts/{id}/sessions` | GET | All sessions for prompt, chronological |
 | `/api/prompts/{id}/start-workflow` | POST | Triggers background processing |
 | `/api/prompts/{id}/validate` | POST | Validates pending pins only |
-
-This schema and filtering system provides comprehensive data management for the Pinterest AI content discovery workflow. 
